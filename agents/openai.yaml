@@ -1,0 +1,4 @@
+interface:
+  display_name: "CMake STM32 全自动调试"
+  short_description: "CMake+GCC 工程：工具链自动发现、编译、烧录、调试、串口闭环验证。"
+  default_prompt: "使用 cmake-stm32-autodebug-skill：先跑 scripts/env_doctor.py 体检工具链与探针，再按 build→flash→serial 闭环执行，结论以退出码为准。"

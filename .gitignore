@@ -1,0 +1,16 @@
+# cmake-stm32-autodebug-skill
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+build/
+.cmsk/
+env_snapshot.json
+# 本机路径/串口等私有配置不进仓库
+config/project.json
+# 编辑器
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

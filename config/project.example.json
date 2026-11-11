@@ -1,0 +1,65 @@
+{
+  "_comment": "复制成 config/project.json 后按自己的工程改。所有字段都可省略，省略就走自动发现/默认值。",
+  "skill": "cmake-stm32-autodebug-skill",
+
+  "build": {
+    "preset": "Release",
+    "debug_preset": "Debug",
+    "elf": "build/Release/DM-J4310-2EC.elf",
+    "bin": "build/Release/DM-J4310-2EC.bin",
+    "generator": "Ninja",
+    "_comment": "elf/bin 里的 DM-J4310-2EC 请改成你的工程产物名；也支持通配 build/<Preset>/*.elf"
+  },
+
+  "target": {
+    "chip": "stm32h723xx",
+    "openocd_target": "target/stm32h7x.cfg",
+    "openocd_interface": "interface/stlink.cfg",
+    "_comment": "chip 用 pyOCD 的 target 名；openocd_* 用 openocd scripts 下的相对路径"
+  },
+
+  "flash": {
+    "backend": "openocd",
+    "fallback": "pyocd",
+    "verify": true,
+    "keep_halted": true,
+    "_comment": "backend 可填 openocd / pyocd；keep_halted=true 时烧完不自动 go，由 serial 阶段再释放"
+  },
+
+  "serial": {
+    "port": "COM14",
+    "baud": 115200,
+    "probe_cmd": "PING",
+    "token": "@PONG",
+    "conservation_cmd": "@RX",
+    "timeout_s": 5
+  },
+
+  "debug": {
+    "gdb_port": 3333,
+    "telnet_port": 4444,
+    "require_dwarf": true
+  },
+
+  "paths": {
+    "gcc": null,
+    "gdb": null,
+    "cmake": null,
+    "ninja": null,
+    "python": null,
+    "pyocd": null,
+    "openocd": null,
+    "openocd_scripts": null,
+    "_comment": "留 null = 自动发现；填了就用填的（相对路径按工程根解析）"
+  },
+
+  "net": {
+    "probe": true,
+    "sources": [
+      { "name": "pypi-tuna",   "url": "https://pypi.tuna.tsinghua.edu.cn/simple/pyocd/", "verified": true },
+      { "name": "pypi-aliyun", "url": "https://mirrors.aliyun.com/pypi/simple/pyocd/",    "verified": true },
+      { "name": "github",      "url": "https://github.com/xpack-dev-tools/openocd-xpack/releases", "verified": true },
+      { "name": "tuna-github-release", "url": "https://mirrors.tuna.tsinghua.edu.cn/github-release/", "verified": "partial", "note": "镜像存在但不收录 xpack-dev-tools" }
+    ]
+  }
+}
