@@ -75,6 +75,26 @@ INSTALL_HINTS = {
         {"source": "pip 阿里源", "verified": True,
          "cmd": 'python -m pip install pyocd pyserial -i https://mirrors.aliyun.com/pypi/simple/'},
     ],
+    "cubemx": [
+        {"source": "ST 官网（需 ST 账号）", "verified": True,
+         "url": "https://www.st.com/en/development-tools/stm32cubemx.html",
+         "note": "改 .ioc / 重新生成 Core+Drivers 时必需；纯命令行编译可以不装"},
+    ],
+    "cubeprog": [
+        {"source": "ST 官网（需 ST 账号）", "verified": True,
+         "url": "https://www.st.com/en/development-tools/stm32cubeprog.html",
+         "note": "openocd 因 VTREF 偏低连不上时的备选烧录器（它不做电压门槛检查）"},
+    ],
+    "clion": [
+        {"source": "JetBrains 官网（学生可申请免费）", "verified": True,
+         "url": "https://www.jetbrains.com/clion/download/",
+         "note": "可选；CLion 自带 cmake/ninja，也可用它的工具链"},
+    ],
+    "vscode": [
+        {"source": "微软官网", "verified": True,
+         "url": "https://code.visualstudio.com/download",
+         "note": "可选；配 CMake Tools / Cortex-Debug 扩展更顺手"},
+    ],
     "openocd": [
         {"source": "winget (xpack) ★本机实测", "verified": True,
          "cmd": 'winget install -e --id xpack-dev-tools.openocd-xpack'},
@@ -248,6 +268,8 @@ def main(argv):
     rows = TR.scan(cfg)
     report["tools"] = rows
     for r in rows:
+        if r.get("optional"):
+            continue                      # 可选软件缺失不算问题（单独提示）
         if r["need"] and not r["ok"]:
             report["problems"].append("缺少必需工具 %s（%s）" % (r["label"], r["reason"]))
 
@@ -349,6 +371,15 @@ def main(argv):
         if not r["ok"] and r["tool"] in INSTALL_HINTS:
             for h in INSTALL_HINTS[r["tool"]][:2]:
                 print("        → %s: %s" % (h["source"], h.get("cmd") or h.get("url") or h.get("note")))
+    print("-" * 78)
+    opts = [r for r in rows if r.get("optional")]
+    if opts:
+        for r in opts:
+            mark = "有  " if r["ok"] else "缺  "
+            print("[OPT ] %-52s %s" % (r["label"], r["path"] or "未安装（可选，需要时再装）"))
+            if not r["ok"]:
+                for h in INSTALL_HINTS.get(r["tool"], [])[:1]:
+                    print("        → %s: %s" % (h["source"], h.get("url") or h.get("cmd") or h.get("note", "")))
     print("-" * 78)
     print("[%s] openocd scripts: %s" % ("OK  " if scripts else "WARN", scripts or "-"))
     print("[%s] 探针: %s" % ("OK  " if probe["found"] else "MISS",

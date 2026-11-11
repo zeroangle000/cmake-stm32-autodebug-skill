@@ -57,6 +57,29 @@ openocd ... -c "adapter speed 1000" ...
 
 ---
 
+### 1.4 备选：STM32CubeProgrammer CLI（对低电压更宽容）
+
+OpenOCD 有**硬性电压门槛**：`Target voltage` 低于阈值直接
+`Error: target voltage may be too low for reliable debugging`（实测 1.03 V 时读到全 0）。
+**同样的板子 ST CLI 往往还能连**——它不做这个检查。
+
+```bash
+# ST 的 bundle 路径带版本号，用 env_doctor 的 [OPT] 行拿到实际路径
+"<STM32_Programmer_CLI.exe>" -c port=SWD freq=1000     -w build/<P>/xxx.elf -v -rst
+```
+
+成功标志：`File download complete` → `Download verified successfully` → `MCU Reset`
+
+> 结论顺序：**常规用 OpenOCD**；遇到电压/驱动问题时按
+> `OpenOCD → ST CLI → 串口 ISP(BOOT0)` 依次降级，**不要急着怀疑芯片坏了**。
+
+### 串口 ISP 兜底（ST-LINK 彻底失效时）
+
+多数 STM32 的 `USART1` 引到排针（如 F407：`PB6=TX / PB7=RX`），
+`BOOT0` 拨高 + 复位 → 用 USB-TTL 配合 ST CLI 串口模式烧录。
+
+---
+
 ## 2. pyOCD 备选后端
 
 ```bash

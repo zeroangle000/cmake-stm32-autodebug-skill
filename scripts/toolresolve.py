@@ -70,6 +70,27 @@ SPECS = {
         "ver": ["--version"], "need": False, "minv": (0, 11),
         "label": "OpenOCD",
     },
+    # ---- 可选软件：缺了不影响闭环，但 IDE/图形化流程会用到，缺了要提示 ----
+    "cubemx": {
+        "bins": ["STM32CubeMX"], "env": "CMSK_CUBEMX", "cfg": "cubemx",
+        "ver": ["-v"], "need": False, "minv": (0, 0), "optional": True,
+        "label": "STM32CubeMX（生成/改 .ioc 用）",
+    },
+    "cubeprog": {
+        "bins": ["STM32_Programmer_CLI"], "env": "CMSK_CUBEPROG", "cfg": "cubeprog",
+        "ver": ["--version"], "need": False, "minv": (0, 0), "optional": True,
+        "label": "STM32CubeProgrammer CLI（烧录备选，对低电压更宽容）",
+    },
+    "clion": {
+        "bins": ["clion64", "clion"], "env": "CMSK_CLION", "cfg": "clion",
+        "ver": [], "need": False, "minv": (0, 0), "optional": True,
+        "label": "CLion（可选 IDE）",
+    },
+    "vscode": {
+        "bins": ["code"], "env": "CMSK_VSCODE", "cfg": "vscode",
+        "ver": ["--version"], "need": False, "minv": (0, 0), "optional": True,
+        "label": "VS Code（可选 IDE）",
+    },
 }
 
 # ------------------------------------------------------- 常见安装位置（glob）
@@ -90,6 +111,22 @@ _WIN_GLOBS = [
     r"C:\toolchains\**\bin",
     r"%USERPROFILE%\toolchains\**\bin",
 ]
+_WIN_GLOBS += [
+    # STM32CubeMX
+    r"D:\CubeMx\STM32CubeMX.exe",
+    r"C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX\STM32CubeMX.exe",
+    r"C:\Program Files (x86)\STMicroelectronics\STM32Cube\STM32CubeMX\STM32CubeMX.exe",
+    # STM32CubeProgrammer CLI（ST 的 bundle 目录带版本号）
+    r"%LOCALAPPDATA%\stm32cube\bundles\programmer\*\bin",
+    r"C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin",
+    # CLion
+    r"C:\Program Files\JetBrains\CLion*\bin",
+    r"%LOCALAPPDATA%\JetBrains\Toolbox\apps\CLion\*\*\bin",
+    # VS Code
+    r"%LOCALAPPDATA%\Programs\Microsoft VS Code\bin",
+    r"C:\Program Files\Microsoft VS Code\bin",
+]
+
 _NIX_GLOBS = [
     "/opt/**/bin", "/usr/local/**/bin", "/usr/bin", "/usr/local/bin",
     os.path.expanduser("~/.local/bin"), os.path.expanduser("~/.xpack/**/bin"),
@@ -215,8 +252,11 @@ def scan(cfg=None):
             "min": "%d.%d" % spec["minv"], "path": path,
             "version": None, "version_raw": "", "ok": False, "reason": "",
         }
+        row["optional"] = bool(spec.get("optional"))
         if not path:
             row["reason"] = "未找到"
+        elif not spec["ver"]:
+            row["ok"] = True          # 没有 --version 的 GUI 程序：存在即算找到
         else:
             v, raw, err = version_of(path, name)
             row["version"], row["version_raw"] = v, raw

@@ -133,7 +133,8 @@ references/03-build.md      CMake 预设、产物、常见链接错误
 references/04-flash.md      openocd / pyocd 烧录与失败分类
 references/05-debug.md      gdb、DWARF 门禁、断点、reset 语义
 references/06-serial.md     串口参数、令牌、守恒量断言
-references/07-troubleshooting.md  12 条实测坑
+references/07-troubleshooting.md  16 条实测坑
+references/08-cubemx-cmake.md     CubeMX+CMake 专题（谁被覆盖 / find_program / 收源码）
 scripts/toolresolve.py      工具发现（可 import）
 scripts/env_doctor.py       环境体检（exit 0/6）
 scripts/flash_loop.py       编译→烧录→串口 闭环（exit 0~6）

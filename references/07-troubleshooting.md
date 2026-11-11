@@ -117,6 +117,48 @@ flash program page failure (address 0x08000000; result code 0x1)
 
 ---
 
+## 14. `Target voltage too low` / `No STM32 target found` 的判断路径
+
+| 现象 | 含义 |
+|---|---|
+| `Target voltage: 0.5~1.0 V` 且每次读数都在飘 | TVCC/VTREF 没接到 3.3 V，或接触不良 |
+| 电压正常但 `init mode failed` | SWD 线序/接触问题 |
+| `STLINK_JTAG_GET_IDCODE_ERROR` | 发了请求目标没响应 → SWDIO/SWCLK 接反或断线 |
+| normal / under-reset / hotplug 三种模式全失败 | 硬件层（供电/接线），不是软件配置 |
+
+排查顺序：
+
+```
+1) ST-LINK 空载量自己的 3.3V（确认调试器没坏）
+2) 接上目标板后再量那根 3.3V 线（接触不良会把 3.3V 拉到 0.6V）
+3) 确认 SWDIO→PA13、SWCLK→PA14（6 针模块 Pin2=SWCLK、Pin4=SWDIO，别按顺序接）
+4) GND 必须共地
+5) 换杜邦线
+```
+
+> 空载正常、接上目标板掉到 0.6 V = **线材接触电阻**问题，不是电源打架。
+> 电压不达标时 **OpenOCD 会拒绝**，但 STM32CubeProgrammer 往往还能烧（见 04-flash.md §1.4）。
+
+---
+
+## 15. ESP-IDF / 其它扩展抢调试设备
+
+- ESP-IDF 扩展的 `idf.openOcdConfigs` 非空 → 每次 build/flash 都尝试起 OpenOCD →
+  报 `esp_usb_jtag: could not find or open device`，整条任务链标红
+- 解决：`.vscode/settings.json` 里 `"idf.openOcdConfigs": []`
+- 同理：同一台机器上 OpenOCD / pyOCD / Keil / CubeProgrammer **串行使用**，不要同时占用探针
+
+---
+
+## 16. CubeMX 每次 Generate 都覆盖 toolchain 文件
+
+- `cmake/gcc-arm-none-eabi.cmake` 属于 `cmake/stm32cubemx/` 的同伴文件，**会被重写**
+- 症状：昨天能编，重新 Generate 后报 `arm-none-eabi-gcc is not a full path` 或链接不到
+- 解决：把"`find_program` 版工具链"存成模板，Generate 后贴回去（写法见
+  [08-cubemx-cmake.md](08-cubemx-cmake.md) §2）
+
+---
+
 ## 附：⏳ 待验证（作者板子恢复正常后补）
 
 | # | 项目 | 验证方法 |

@@ -129,6 +129,23 @@ brew install --cask gcc-arm-embedded
 
 ---
 
+## 4.1 IDE / 图形化软件（可选，但缺了要提示用户）
+
+`env_doctor.py` 会把这几样单独列成 `[OPT]`，**缺了不影响 exit code**，但会在输出里给出官网：
+
+| 软件 | 什么时候真的需要 | 检测方式 | 官网 |
+|---|---|---|---|
+| **STM32CubeMX** | 要改 `.ioc` / 重新生成 `Core+Drivers` / 改引脚时钟 | 常见路径 + PATH | <https://www.st.com/en/development-tools/stm32cubemx.html> |
+| **STM32CubeProgrammer**（CLI） | OpenOCD 因 VTREF 偏低连不上时的**备选烧录器** | `%LOCALAPPDATA%\stm32cube\bundles\programmer\*\bin` | <https://www.st.com/en/development-tools/stm32cubeprog.html> |
+| **CLion** | 想要图形化 IDE（自带 cmake/ninja） | `C:\Program Files\JetBrains\CLion*\bin` | <https://www.jetbrains.com/clion/download/> |
+| **VS Code** | 想要 CMake Tools / Cortex-Debug | PATH 里的 `code` | <https://code.visualstudio.com/download> |
+
+> ST 的两个工具都要 **ST 账号**（免费）。国内下载慢属正常，装一次即可。
+> **纯命令行流程（本 skill 的主路径）不需要 CubeMX**；只有你要改硬件配置时才需要它。
+> CubeMX 与 CMake 工程的配合要点见 [08-cubemx-cmake.md](08-cubemx-cmake.md)。
+
+---
+
 ## 5. 装完必做的三件事
 
 ```bash
